@@ -1,0 +1,28 @@
+<%- include('partials/header') %>
+
+<div class="container">
+  <h2>Mood Calendar</h2>
+
+  <div class="calendar">
+    <% 
+      const today = new Date();
+      const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+      const currentMonth = today.toISOString().slice(0, 7); // e.g., 2025-07
+    %>
+
+    <% for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${currentMonth}-${String(d).padStart(2, '0')}`;
+        const mood = calendarMap[dateStr] || '⬜';
+    %>
+      <div class="day">
+        <div class="day-label"><%= d %></div>
+        <div class="mood"><%= mood %></div>
+      </div>
+    <% } %>
+  </div>
+
+  <a href="/journal">Back to Journal</a> | 
+  <a href="/journal/dashboard">View Dashboard</a>
+</div>
+
+<%- include('partials/footer') %>

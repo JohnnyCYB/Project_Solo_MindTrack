@@ -1,11 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Sign Up – MindTrack</title>
-  <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-  <h1>Sign-Up Page</h1>
-  <a href="/">Back to Home</a>
-</body>
-</html>
+<%- include('partials/header') %>
+
+<div class="container">
+  <h2>Create Account</h2>
+  <form method="POST" action="/signup">
+    <input name="username" placeholder="Username" required>
+    <input name="password" placeholder="Password" type="password" required>
+    <button type="submit">Register</button>
+  </form>
+  <p>Already have an account? <a href="/login">Login here</a></p>
+</div>
+
+<%- include('partials/footer') %>

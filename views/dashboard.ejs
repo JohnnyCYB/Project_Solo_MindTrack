@@ -1,11 +1,26 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Dashboard – MindTrack</title>
-  <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-  <h1>Dashboard Page</h1>
-  <a href="/">Back to Home</a>
-</body>
-</html>
+<%- include('partials/header') %>
+
+<div class="container">
+  <h2>Your Mood Dashboard</h2>
+
+  <% if (entries.length === 0) { %>
+    <p style="text-align: center;">No journal entries yet. Start writing to track your mood journey!</p>
+  <% } else { %>
+    <div class="grid">
+      <% entries.forEach(e => { %>
+        <div class="card">
+          <h3><%= e.date %></h3>
+          <p class="emoji"><%= e.mood %></p>
+          <p><%= e.entry %></p>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+
+  <div style="text-align: center; margin-top: 20px;">
+    <a href="/journal">Back to Journal</a> |
+    <a href="/journal/calendar">View Calendar</a>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,15 +1,39 @@
 const express = require('express');
-const app = express();
 const path = require('path');
+const session = require('express-session');
 
+const app = express();
+
+// Middleware
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
-app.use(express.static('public'));
 
-app.get('/', (req, res) => res.render('index'));
-app.get('/login', (req, res) => res.render('login'));
-app.get('/signup', (req, res) => res.render('signup'));
-app.get('/journal', (req, res) => res.render('journal'));
-app.get('/dashboard', (req, res) => res.render('dashboard'));
+// Session config
+app.use(session({
+  secret: 'supersecret',
+  resave: false,
+  saveUninitialized: true
+}));
 
-const port = 3000;
-app.listen(port, () => console.log(`Server running at http://localhost:${port}`));
+// Make session available in EJS templates
+app.use((req, res, next) => {
+  res.locals.session = req.session;
+  next();
+});
+
+// Routes
+const authRoutes = require('./routes/auth');
+const journalRoutes = require('./routes/journal');
+
+app.use('/', authRoutes);
+app.use('/journal', journalRoutes);
+
+// Home page
+app.get('/', (req, res) => {
+  res.render('index');
+});
+
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

@@ -1,11 +1,41 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Journal – MindTrack</title>
-  <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-  <h1>Journal Entry Page</h1>
-  <a href="/">Back to Home</a>
-</body>
-</html>
+<%- include('partials/header') %>
+
+<div class="container">
+  <h2>Journal Entry</h2>
+  <p><strong>Today's Prompt:</strong> <i><%= prompt %></i></p>
+
+  <form method="POST" action="/journal">
+    <label for="date">Date:</label>
+    <input type="date" name="date" required>
+
+    <label for="mood">Mood:</label>
+    <select name="mood" required>
+      <option value="">Select your mood</option>
+      <option value="😀">😀 Happy</option>
+      <option value="😢">😢 Sad</option>
+      <option value="😠">😠 Angry</option>
+      <option value="😌">😌 Calm</option>
+      <option value="😰">😰 Anxious</option>
+      <option value="😴">😴 Tired</option>
+      <option value="😎">😎 Confident</option>
+      <option value="🤔">🤔 Reflective</option>
+    </select>
+
+    <label for="entry">Thoughts:</label>
+    <textarea name="entry" rows="5" placeholder="What's on your mind today?" required></textarea>
+
+    <button type="submit">Save Entry</button>
+  </form>
+
+  <h3>Previous Entries</h3>
+  <ul>
+    <% entries.forEach(e => { %>
+      <li><b><%= e.date %></b>: <strong><%= e.mood %></strong> – <%= e.entry %></li>
+    <% }) %>
+  </ul>
+
+  <a href="/journal/dashboard">View Dashboard</a> | 
+  <a href="/journal/calendar">View Calendar</a>
+</div>
+
+<%- include('partials/footer') %>
