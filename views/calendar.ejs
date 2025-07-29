@@ -1,28 +1,77 @@
-<%- include('partials/header') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>MindTrack • Calendar</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">MindTrack</div>
+    <div class="nav-links">
+      <a href="/journal">Journal</a>
+      <a href="/journal/dashboard">Dashboard</a>
+      <a href="/journal/calendar">Calendar</a>
+      <a href="/logout">Log Out</a>
+    </div>
+  </nav>
 
-<div class="container">
-  <h2>Mood Calendar</h2>
+  <main class="calendar">
+    <h1>Mood Calendar</h1>
+    <p class="subtitle">Your mood entries by day.</p>
 
-  <div class="calendar">
     <% 
+      // Build date→emoji map
+      const map = {};
+      entries.forEach(e => map[e.date] = e.emoji);
+
+      // Current month/year
       const today = new Date();
-      const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-      const currentMonth = today.toISOString().slice(0, 7); // e.g., 2025-07
+      const year = today.getFullYear();
+      const month = today.getMonth(); // 0–11
+
+      // Determine blanks before day 1 (Mon-first)
+      const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+      const blanks = (firstDay + 6) % 7;
+
+      // Days in month
+      const daysInMonth = new Date(year, month+1, 0).getDate();
     %>
 
-    <% for (let d = 1; d <= daysInMonth; d++) {
-        const dateStr = `${currentMonth}-${String(d).padStart(2, '0')}`;
-        const mood = calendarMap[dateStr] || '⬜';
-    %>
-      <div class="day">
-        <div class="day-label"><%= d %></div>
-        <div class="mood"><%= mood %></div>
-      </div>
-    <% } %>
-  </div>
+    <div class="calendar-grid">
+      <!-- Weekday headers -->
+      <% ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d => { %>
+        <div class="calendar-day-header"><%= d %></div>
+      <% }) %>
 
-  <a href="/journal">Back to Journal</a> | 
-  <a href="/journal/dashboard">View Dashboard</a>
-</div>
+      <!-- Blank slots before 1st -->
+      <% for (let i = 0; i < blanks; i++) { %>
+        <div></div>
+      <% } %>
 
-<%- include('partials/footer') %>
+      <!-- Days of month -->
+      <% for (let day = 1; day <= daysInMonth; day++) {
+           const dd = String(day).padStart(2,'0');
+           const mm = String(month+1).padStart(2,'0');
+           const dateStr = `${year}-${mm}-${dd}`;
+           const emoji = map[dateStr];
+      %>
+        <div 
+          class="calendar-day-card" 
+          style="cursor:<%= emoji ? 'pointer' : 'default' %>;"
+          <% if (emoji) { %> onclick="location.href='/journal'" <% } %>
+        >
+          <h3><%= day %></h3>
+          <% if (emoji) { %>
+            <div class="mood-emoji"><%= emoji %></div>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+  </main>
+
+  <footer class="footer">
+    Powered by MindTrack • Your mental health companion
+  </footer>
+</body>
+</html>
