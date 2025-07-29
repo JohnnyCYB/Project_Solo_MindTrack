@@ -1,26 +1,86 @@
-<%- include('partials/header') %>
-
-<div class="container">
-  <h2>Your Mood Dashboard</h2>
-
-  <% if (entries.length === 0) { %>
-    <p style="text-align: center;">No journal entries yet. Start writing to track your mood journey!</p>
-  <% } else { %>
-    <div class="grid">
-      <% entries.forEach(e => { %>
-        <div class="card">
-          <h3><%= e.date %></h3>
-          <p class="emoji"><%= e.mood %></p>
-          <p><%= e.entry %></p>
-        </div>
-      <% }) %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>MindTrack • Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">MindTrack</div>
+    <div class="nav-links">
+      <a href="/journal">Journal</a>
+      <a href="/journal/dashboard">Dashboard</a>
+      <a href="/journal/calendar">Calendar</a>
+      <a href="/logout">Log Out</a>
     </div>
-  <% } %>
+  </nav>
 
-  <div style="text-align: center; margin-top: 20px;">
-    <a href="/journal">Back to Journal</a> |
-    <a href="/journal/calendar">View Calendar</a>
-  </div>
-</div>
+  <main class="dashboard">
+    <h1>Welcome, <%= session.user.username %>!</h1>
+    <p class="subtitle">Here’s a snapshot of where you are today.</p>
 
-<%- include('partials/footer') %>
+    <div class="cards">
+      <!-- TODAY'S MOOD -->
+      <div class="card clickable" onclick="location.href='/journal'">
+        <h3>Today’s Mood</h3>
+        <% if (latestEntry) { %>
+          <div class="mood-emoji">
+            <%= {5:'😃',4:'🙂',3:'😐',2:'🙁',1:'😢'}[latestEntry.rating] %>
+          </div>
+        <% } else { %>
+          <p>No data yet<br><small>Click to add</small></p>
+        <% } %>
+      </div>
+
+      <!-- LATEST ENTRY -->
+      <div class="card clickable" onclick="location.href='/journal'">
+        <h3>Latest Entry</h3>
+        <% if (latestEntry) { %>
+          <p><%= latestEntry.text.slice(0, 120) %>…</p>
+        <% } else { %>
+          <p>No entries yet<br><small>Click to write</small></p>
+        <% } %>
+      </div>
+
+      <!-- MOOD THIS WEEK -->
+      <div class="card clickable" onclick="location.href='/graph'">
+        <h3>Mood This Week</h3>
+        <canvas id="weekChart"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const ctx = document.getElementById("weekChart");
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+        datasets: [{
+          label: "Mood Score",
+          data: [3,4,2,5,4,3,4],
+          tension: 0.4,
+          fill: true,
+          pointRadius: 6,
+          borderWidth: 3
+        }]
+      },
+      options: {
+        scales: {
+          y: { min: 1, max: 5, ticks: { stepSize: 1 } }
+        },
+        plugins: {
+          tooltip: { enabled: true },
+          legend: { display: true }
+        }
+      }
+    });
+  </script>
+
+  <footer class="footer">
+    Powered by MindTrack • Your mental health companion
+  </footer>
+</body>
+</html>

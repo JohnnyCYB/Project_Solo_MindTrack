@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <title>MindTrack • Log In</title>
+  <title>MindTrack • Sign Up</title>
   <link rel="stylesheet" href="/css/style.css"/>
 </head>
 <body>
@@ -10,20 +10,20 @@
     <div class="nav-brand">MindTrack</div>
     <div class="nav-links">
       <a href="/">Home</a>
-      <a href="/register">Sign Up</a>
+      <a href="/login">Log In</a>
     </div>
   </nav>
 
   <main class="auth-page">
     <div class="auth-card">
-      <h2>Log In</h2>
+      <h2>Create Account</h2>
       <% if (error) { %><p class="form-error"><%= error %></p><% } %>
-      <form method="POST" action="/login">
+      <form method="POST" action="/register">
         <input name="username" placeholder="Username" required/>
         <input type="password" name="password" placeholder="Password" required/>
-        <button type="submit">Log In</button>
+        <button type="submit">Sign Up</button>
       </form>
-      <p>Don’t have an account? <a href="/register">Sign Up here</a></p>
+      <p>Already have an account? <a href="/login">Log In here</a></p>
     </div>
   </main>
 

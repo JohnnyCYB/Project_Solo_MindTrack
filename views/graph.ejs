@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>MindTrack • Mood Graph</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">MindTrack</div>
+    <div class="nav-links">
+      <a href="/journal">Journal</a>
+      <a href="/journal/dashboard">Dashboard</a>
+      <a href="/journal/calendar">Calendar</a>
+      <a href="/logout">Log Out</a>
+    </div>
+  </nav>
+
+  <main class="graph-page">
+    <h1>Your Mood Graph</h1>
+    <p class="subtitle">Visualize your emotional journey.</p>
+    <canvas id="moodGraph" width="800" height="400"></canvas>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const ctx = document.getElementById("moodGraph");
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: ["Week 1","Week 2","Week 3","Week 4"],
+        datasets: [{
+          label: "Average Mood",
+          data: [3.2, 4.1, 3.8, 4.3],
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: { scales: { y: { min:1, max:5 } } }
+    });
+  </script>
+
+  <footer class="footer">
+    Powered by MindTrack &bull; Your mental health companion
+  </footer>
+</body>
+</html>

@@ -1,41 +1,56 @@
-<%- include('partials/header') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>MindTrack • Journal</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">MindTrack</div>
+    <div class="nav-links">
+      <a href="/journal">Journal</a>
+      <a href="/journal/dashboard">Dashboard</a>
+      <a href="/journal/calendar">Calendar</a>
+      <a href="/logout">Log Out</a>
+    </div>
+  </nav>
 
-<div class="container">
-  <h2>Journal Entry</h2>
-  <p><strong>Today's Prompt:</strong> <i><%= prompt %></i></p>
+  <main class="dashboard">
+    <h1>Your Journal</h1>
+    <p class="subtitle">Write and review your daily reflections.</p>
 
-  <form method="POST" action="/journal">
-    <label for="date">Date:</label>
-    <input type="date" name="date" required>
+    <section class="auth-card" style="max-width:600px; margin:1rem auto;">
+      <h2>New Entry</h2>
+      <form method="POST" action="/journal">
+        <textarea name="text" rows="4" placeholder="How are you feeling today?" required style="width:100%; padding:.75rem;"></textarea>
+        <select name="rating" required style="width:100%; padding:.75rem; margin-top:.5rem;">
+          <option value="">Rate your mood</option>
+          <option value="5">5 - 😃</option>
+          <option value="4">4 - 🙂</option>
+          <option value="3">3 - 😐</option>
+          <option value="2">2 - 🙁</option>
+          <option value="1">1 - 😢</option>
+        </select>
+        <button type="submit">Save Entry</button>
+      </form>
+    </section>
 
-    <label for="mood">Mood:</label>
-    <select name="mood" required>
-      <option value="">Select your mood</option>
-      <option value="😀">😀 Happy</option>
-      <option value="😢">😢 Sad</option>
-      <option value="😠">😠 Angry</option>
-      <option value="😌">😌 Calm</option>
-      <option value="😰">😰 Anxious</option>
-      <option value="😴">😴 Tired</option>
-      <option value="😎">😎 Confident</option>
-      <option value="🤔">🤔 Reflective</option>
-    </select>
+    <section class="cards">
+      <% entries.forEach(e => { %>
+        <div class="card">
+          <h3><%= e.date %> - Rating: <%= e.rating %>/5</h3>
+          <p><%= e.text.slice(0, 100) %><%= e.text.length>100 ? '…' : '' %></p>
+        </div>
+      <% }) %>
+      <% if (!entries.length) { %>
+        <p style="text-align:center; width:100%;">No journal entries yet.</p>
+      <% } %>
+    </section>
+  </main>
 
-    <label for="entry">Thoughts:</label>
-    <textarea name="entry" rows="5" placeholder="What's on your mind today?" required></textarea>
-
-    <button type="submit">Save Entry</button>
-  </form>
-
-  <h3>Previous Entries</h3>
-  <ul>
-    <% entries.forEach(e => { %>
-      <li><b><%= e.date %></b>: <strong><%= e.mood %></strong> – <%= e.entry %></li>
-    <% }) %>
-  </ul>
-
-  <a href="/journal/dashboard">View Dashboard</a> | 
-  <a href="/journal/calendar">View Calendar</a>
-</div>
-
-<%- include('partials/footer') %>
+  <footer class="footer">
+    Powered by MindTrack &bull; Your mental health companion
+  </footer>
+</body>
+</html>

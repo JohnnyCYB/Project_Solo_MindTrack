@@ -1,36 +1,54 @@
-const express = require('express');
+const express = require("express");
+const fs = require("fs");
+const path = require("path");
 const router = express.Router();
 
-// Fake in-memory user store
-const users = [];
+const USERS_FILE = path.join(__dirname, "../data/users.json");
 
-router.get('/signup', (req, res) => res.render('signup'));
+function loadUsers() {
+  if (!fs.existsSync(USERS_FILE)) return [];
+  return JSON.parse(fs.readFileSync(USERS_FILE));
+}
 
-router.post('/signup', (req, res) => {
-  const { username, password } = req.body;
-  users.push({ username: username.trim().toLowerCase(), password: password.trim() });
-  res.redirect('/login');
+// Login form
+router.get("/login", (req, res) => {
+  res.render("login", { error: null });
 });
 
-router.get('/login', (req, res) => res.render('login'));
-
-router.post('/login', (req, res) => {
+// Handle login
+router.post("/login", (req, res) => {
   const { username, password } = req.body;
-  const user = users.find(
-    u => u.username === username.trim().toLowerCase() && u.password === password.trim()
-  );
+  const users = loadUsers();
+  const user = users.find(u => u.username === username && u.password === password);
   if (user) {
     req.session.user = user;
-    res.redirect('/journal');
+    res.redirect("/journal/dashboard");
   } else {
-    res.send('<h2>Login failed. <a href="/login">Try again</a></h2>');
+    res.render("login", { error: "Invalid username or password" });
   }
 });
 
-router.get('/logout', (req, res) => {
-  req.session.destroy(() => {
-    res.redirect('/');
-  });
+// Registration form
+router.get("/register", (req, res) => {
+  res.render("register", { error: null });
+});
+
+// Handle registration
+router.post("/register", (req, res) => {
+  const { username, password } = req.body;
+  const users = loadUsers();
+  if (users.find(u => u.username === username)) {
+    return res.render("register", { error: "Username already exists" });
+  }
+  users.push({ username, password });
+  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+  res.redirect("/login");
+});
+
+// Logout
+router.get("/logout", (req, res) => {
+  req.session.destroy();
+  res.redirect("/login");
 });
 
 module.exports = router;

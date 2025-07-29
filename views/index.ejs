@@ -1,9 +1,52 @@
-<%- include('partials/header') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>MindTrack • Home</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">MindTrack</div>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/login">Log In</a>
+      <a href="/register">Sign Up</a>
+    </div>
+  </nav>
 
-<div class="container">
-  <h1>Welcome to MindTrack</h1>
-  <p>Your private space to reflect, track your mood, and grow.</p>
-  <a href="/signup">Sign Up</a> | <a href="/login">Login</a>
-</div>
+  <header class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1>MindTrack</h1>
+      <p>Your private space to reflect, track your mood, and grow stronger each day.</p>
+      <div>
+        <a href="/login" class="btn btn-primary">Log In</a>
+        <a href="/register" class="btn btn-secondary">Sign Up</a>
+      </div>
+    </div>
+  </header>
 
-<%- include('partials/footer') %>
+  <section class="features">
+    <div class="feature-card">
+      <h2>Journal</h2>
+      <p>Write daily entries and reflect on your thoughts.</p>
+      <a href="/journal" class="link">Go to Journal →</a>
+    </div>
+    <div class="feature-card">
+      <h2>Dashboard</h2>
+      <p>View your mood trends at a glance.</p>
+      <a href="/journal/dashboard" class="link">View Dashboard →</a>
+    </div>
+    <div class="feature-card">
+      <h2>Mood Graph</h2>
+      <p>See your emotional journey over time.</p>
+      <a href="/graph" class="link">See Graph →</a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    Powered by MindTrack &bull; Your mental health companion
+  </footer>
+</body>
+</html>
