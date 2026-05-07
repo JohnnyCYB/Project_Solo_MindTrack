@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Grind — Physique Pet Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      body { background: #09090b; }
+      .grain {
+        background-image:
+          radial-gradient(circle at 20% 20%, rgba(16,185,129,.12), transparent 28%),
+          radial-gradient(circle at 80% 0%, rgba(63,63,70,.35), transparent 30%),
+          linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+        background-size: auto, auto, 42px 42px, 42px 42px;
+      }
+      @keyframes breathe {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-4px) scale(1.025); }
+      }
+      @keyframes pulseRing {
+        0%, 100% { opacity: .3; transform: scale(.96); }
+        50% { opacity: .72; transform: scale(1.04); }
+      }
+      .pet-breathe { animation: breathe 2.8s ease-in-out infinite; transform-origin: center; }
+      .pulse-ring { animation: pulseRing 2.2s ease-in-out infinite; transform-origin: center; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useEffect, useMemo, useState } = React;
+
+      const STORAGE_KEY = "the-grind-dashboard-v1";
+
+      const defaultState = {
+        petMode: "stable",
+        feedCount: 0,
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fats: 0,
+        muscles: {
+          chest: 2,
+          back: 1,
+          shoulders: 1,
+          arms: 0,
+          core: 0,
+          legs: 2,
+        },
+        lastLog: null,
+      };
+
+      function loadState() {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          return saved ? { ...defaultState, ...JSON.parse(saved) } : defaultState;
+        } catch {
+          return defaultState;
+        }
+      }
+
+      function StatusPill({ label, value, tone = "emerald" }) {
+        const tones = {
+          emerald: "border-emerald-400/20 bg-emerald-400/10 text-emerald-300",
+          zinc: "border-zinc-700 bg-zinc-900/80 text-zinc-300",
+          amber: "border-yellow-400/20 bg-yellow-400/10 text-yellow-200",
+        };
+        return (
+          <div className={`rounded-full border px-3 py-1 text-xs font-semibold tracking-wide ${tones[tone]}`}>
+            <span className="text-zinc-500">{label}</span> {value}
+          </div>
+        );
+      }
+
+      function PhysiquePet({ mode, feedCount }) {
+        const fed = mode === "anabolic";
+        const depleted = mode === "depleted";
+        return (
+          <div className="relative mx-auto flex w-full max-w-xl items-center justify-center rounded-[2rem] border border-zinc-800 bg-zinc-950/70 p-6 shadow-2xl shadow-black/40 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-zinc-500/10" />
+            <div className="absolute h-72 w-72 rounded-full border border-emerald-400/20 pulse-ring" />
+            <div className="relative grid gap-5 text-center">
+              <div className="pet-breathe">
+                <svg width="190" height="190" viewBox="0 0 190 190" className="drop-shadow-[0_0_32px_rgba(16,185,129,.22)]">
+                  <defs>
+                    <linearGradient id="petGlow" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor={fed ? "#34d399" : depleted ? "#52525b" : "#10b981"} />
+                      <stop offset="100%" stopColor={fed ? "#047857" : depleted ? "#27272a" : "#064e3b"} />
+                    </linearGradient>
+                  </defs>
+                  <path d="M95 14 L140 39 L162 91 L145 144 L95 176 L45 144 L28 91 L50 39 Z" fill="rgba(9,9,11,.92)" stroke={fed ? "#34d399" : "#3f3f46"} strokeWidth="3" />
+                  <path d="M95 42 C124 42 144 66 144 96 C144 132 123 152 95 152 C67 152 46 132 46 96 C46 66 66 42 95 42Z" fill="url(#petGlow)" opacity={depleted ? ".55" : ".92"} />
+                  <path d="M68 93 L87 76 L95 102 L103 76 L122 93" fill="none" stroke="#09090b" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" opacity=".82" />
+                  <circle cx="75" cy="111" r="5" fill="#09090b" />
+                  <circle cx="115" cy="111" r="5" fill="#09090b" />
+                  <path d={fed ? "M75 130 Q95 143 115 130" : depleted ? "M77 137 Q95 127 113 137" : "M78 132 Q95 136 112 132"} fill="none" stroke="#09090b" strokeWidth="6" strokeLinecap="round" />
+                  <path d="M48 105 L25 116 M142 105 L165 116" stroke={fed ? "#34d399" : "#71717a"} strokeWidth="5" strokeLinecap="round" opacity=".8" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[.34em] text-emerald-300/70">Physique Pet</p>
+                <h2 className="mt-1 text-2xl font-black tracking-tight text-zinc-50">
+                  {fed ? "ANABOLIC FORM" : depleted ? "DEPLETED" : "STABLE BEAST"}
+                </h2>
+                <p className="mx-auto mt-2 max-w-md text-sm text-zinc-400">
+                  {fed
+                    ? "Macros logged. The creature is fueled, smug, and absolutely judging your rest times."
+                    : depleted
+                    ? "Missed inputs drain the mascot. Not tragic. Just log the next rep."
+                    : "Quietly menacing. Feed it data and it evolves with your consistency."}
+                </p>
+              </div>
+              <div className="flex flex-wrap justify-center gap-2">
+                <StatusPill label="State" value={fed ? "Full" : depleted ? "Hungry" : "Ready"} />
+                <StatusPill label="Feed logs" value={feedCount} tone="zinc" />
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      function MuscleMap({ muscles }) {
+        const muscleMeta = {
+          chest: { label: "Chest", x: 75, y: 72, w: 40, h: 22 },
+          shoulders: { label: "Shoulders", x: 47, y: 62, w: 96, h: 17 },
+          arms: { label: "Arms", x: 30, y: 78, w: 140, h: 54 },
+          core: { label: "Core", x: 78, y: 98, w: 34, h: 45 },
+          legs: { label: "Legs", x: 68, y: 145, w: 54, h: 96 },
+          back: { label: "Back", x: 75, y: 74, w: 40, h: 65 },
+        };
+        const color = (score) => score === 2 ? "#10b981" : score === 1 ? "#facc15" : "#ef4444";
+        const label = (score) => score === 2 ? "Trained" : score === 1 ? "Maintained" : "Neglected";
+        return (
+          <section className="rounded-[2rem] border border-zinc-800 bg-zinc-950/70 p-5 shadow-xl shadow-black/25">
+            <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[.3em] text-zinc-500">Volume Heatmap</p>
+                <h2 className="text-2xl font-black text-zinc-50">Muscle Map</h2>
+              </div>
+              <div className="flex gap-2 text-xs">
+                <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-emerald-300">Trained</span>
+                <span className="rounded-full bg-yellow-400/15 px-3 py-1 text-yellow-200">Maintained</span>
+                <span className="rounded-full bg-red-500/15 px-3 py-1 text-red-300">Neglected</span>
+              </div>
+            </div>
+            <div className="grid gap-6 lg:grid-cols-[.9fr_1.1fr]">
+              <div className="rounded-3xl border border-zinc-800 bg-zinc-900/60 p-4">
+                <svg viewBox="0 0 190 260" className="mx-auto h-[390px] max-h-[60vh] w-full max-w-xs">
+                  <path d="M95 28 C112 28 123 39 123 55 C123 69 112 80 95 80 C78 80 67 69 67 55 C67 39 78 28 95 28Z" fill="#27272a" stroke="#52525b" strokeWidth="2" />
+                  <path d="M58 68 C75 54 115 54 132 68 L145 140 C149 160 134 174 120 156 L114 235 C113 246 103 246 100 235 L95 166 L90 235 C87 246 77 246 76 235 L70 156 C56 174 41 160 45 140 Z" fill="#18181b" stroke="#52525b" strokeWidth="2" />
+                  <rect x="47" y="62" width="96" height="18" rx="9" fill={color(muscles.shoulders)} opacity=".8" />
+                  <rect x="75" y="72" width="40" height="22" rx="10" fill={color(muscles.chest)} opacity=".88" />
+                  <rect x="76" y="98" width="38" height="43" rx="12" fill={color(muscles.core)} opacity=".86" />
+                  <path d="M49 82 C35 100 33 128 45 140 C52 145 63 133 62 117 L58 83Z" fill={color(muscles.arms)} opacity=".82" />
+                  <path d="M141 82 C155 100 157 128 145 140 C138 145 127 133 128 117 L132 83Z" fill={color(muscles.arms)} opacity=".82" />
+                  <path d="M72 146 L91 146 L91 238 C87 248 77 248 75 238Z" fill={color(muscles.legs)} opacity=".84" />
+                  <path d="M99 146 L118 146 L115 238 C113 248 103 248 99 238Z" fill={color(muscles.legs)} opacity=".84" />
+                  <path d="M74 78 C86 68 104 68 116 78 L111 135 C102 142 88 142 79 135Z" fill={color(muscles.back)} opacity=".22" />
+                </svg>
+              </div>
+              <div className="grid gap-3 content-start">
+                {Object.entries(muscles).map(([key, score]) => (
+                  <div key={key} className="flex items-center justify-between rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4">
+                    <div className="flex items-center gap-3">
+                      <span className="h-3 w-3 rounded-full" style={{ background: color(score) }} />
+                      <div>
+                        <p className="font-bold text-zinc-100">{muscleMeta[key].label}</p>
+                        <p className="text-xs text-zinc-500">Auto-updates from sets × reps volume</p>
+                      </div>
+                    </div>
+                    <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-300">{label(score)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      }
+
+      function App() {
+        const [state, setState] = useState(loadState);
+        const [toast, setToast] = useState("");
+
+        useEffect(() => {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }, [state]);
+
+        useEffect(() => {
+          if (!toast) return;
+          const timeout = setTimeout(() => setToast(""), 2400);
+          return () => clearTimeout(timeout);
+        }, [toast]);
+
+        const macroScore = useMemo(() => Math.min(100, Math.round((state.protein / 180) * 100)), [state.protein]);
+
+        function feedPet() {
+          setState((prev) => ({
+            ...prev,
+            petMode: "anabolic",
+            feedCount: prev.feedCount + 1,
+            calories: prev.calories + 520,
+            protein: prev.protein + 42,
+            carbs: prev.carbs + 58,
+            fats: prev.fats + 14,
+            lastLog: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          }));
+          setToast("Meal logged: +520 cals, +42g protein. Pet entered anabolic form.");
+          setTimeout(() => setState((prev) => ({ ...prev, petMode: "stable" })), 3200);
+        }
+
+        function trainRandom() {
+          const keys = Object.keys(state.muscles);
+          const key = keys[Math.floor(Math.random() * keys.length)];
+          setState((prev) => ({
+            ...prev,
+            muscles: { ...prev.muscles, [key]: Math.min(2, prev.muscles[key] + 1) },
+          }));
+          setToast(`${key[0].toUpperCase() + key.slice(1)} volume updated. Heatmap got less tragic.`);
+        }
+
+        function resetDemo() {
+          setState(defaultState);
+          setToast("Demo reset. Fresh grind, same weird pet.");
+        }
+
+        return (
+          <main className="grain min-h-screen px-4 py-6 text-zinc-100 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-6xl space-y-6">
+              <header className="flex flex-wrap items-center justify-between gap-4 rounded-[2rem] border border-zinc-800 bg-zinc-950/70 p-5 shadow-2xl shadow-black/30 backdrop-blur">
+                <div>
+                  <p className="text-xs uppercase tracking-[.34em] text-emerald-300">The Grind</p>
+                  <h1 className="mt-1 text-3xl font-black tracking-tight sm:text-5xl">Physique Command Center</h1>
+                  <p className="mt-2 max-w-2xl text-sm text-zinc-400">A dark-mode fitness dashboard where nutrition logs feed the creature and training volume lights up the muscle map.</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={feedPet} className="rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-black text-zinc-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400">Test Feed</button>
+                  <button onClick={trainRandom} className="rounded-2xl border border-zinc-700 bg-zinc-900 px-5 py-3 text-sm font-bold text-zinc-100 transition hover:border-emerald-400/60">Log Workout</button>
+                </div>
+              </header>
+
+              {toast && <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-semibold text-emerald-200">{toast}</div>}
+
+              <section className="grid gap-6 lg:grid-cols-[1.05fr_.95fr]">
+                <PhysiquePet mode={state.petMode} feedCount={state.feedCount} />
+                <div className="grid gap-4 rounded-[2rem] border border-zinc-800 bg-zinc-950/70 p-5 shadow-xl shadow-black/25">
+                  <div>
+                    <p className="text-xs uppercase tracking-[.3em] text-zinc-500">Nutrition Engine</p>
+                    <h2 className="text-2xl font-black">Quick Log</h2>
+                    <p className="mt-1 text-sm text-zinc-400">Prototype macro input. In production, this wires into Open Food Facts search/upload.</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4"><p className="text-xs text-zinc-500">Calories</p><p className="text-2xl font-black">{state.calories}</p></div>
+                    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4"><p className="text-xs text-zinc-500">Protein</p><p className="text-2xl font-black">{state.protein}g</p></div>
+                    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4"><p className="text-xs text-zinc-500">Carbs</p><p className="text-2xl font-black">{state.carbs}g</p></div>
+                    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4"><p className="text-xs text-zinc-500">Fats</p><p className="text-2xl font-black">{state.fats}g</p></div>
+                  </div>
+                  <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4">
+                    <div className="mb-2 flex justify-between text-xs text-zinc-400"><span>Protein target</span><span>{macroScore}%</span></div>
+                    <div className="h-3 rounded-full bg-zinc-800"><div className="h-3 rounded-full bg-emerald-400 transition-all" style={{ width: `${macroScore}%` }} /></div>
+                  </div>
+                  <button onClick={feedPet} className="rounded-2xl bg-emerald-600 px-5 py-4 font-black text-white shadow-lg shadow-emerald-600/20 transition hover:bg-emerald-500">Quick Log Food</button>
+                  <button onClick={resetDemo} className="rounded-2xl border border-zinc-800 px-5 py-3 text-sm font-bold text-zinc-400 transition hover:border-zinc-600 hover:text-zinc-200">Reset demo data</button>
+                  <p className="text-xs text-zinc-500">Last log: {state.lastLog || "No meals logged yet"}</p>
+                </div>
+              </section>
+
+              <MuscleMap muscles={state.muscles} />
+            </div>
+          </main>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+  </body>
+</html>
